@@ -186,6 +186,43 @@ nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name) %
         filter(route_name == &quot;A&quot;, ada == &quot;TRUE&quot;)))</code></pre>
 <pre><code>## [1] 17</code></pre>
 </div>
+<div id="problem-2" class="section level2">
+<h2>Problem 2</h2>
+<p>Mr. Trash Wheel Sheet</p>
+<pre class="r"><code>library(readxl)
+
+mr_trash_wheel_data = 
+  readxl::read_excel(&quot;./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx&quot;, sheet = &quot;Mr. Trash Wheel&quot;, range = &quot;A2:N258&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  filter(!is.na(dumpster)) %&gt;% 
+  mutate(sports_balls = as.integer(sports_balls)) </code></pre>
+<p>2016 and 2017 Precipitation Data</p>
+<pre class="r"><code>prcp_2016 = readxl::read_excel(&quot;./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx&quot;, sheet = &quot;2016 Precipitation&quot;, range = &quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names() %&gt;%
+  mutate(year = 2016)
+
+prcp_2017 = readxl::read_excel(&quot;./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx&quot;, sheet = &quot;2017 Precipitation&quot;, range = &quot;A2:B14&quot;) %&gt;% 
+  janitor::clean_names() %&gt;%
+  filter(!is.na(total)) %&gt;% 
+  mutate(year = 2017)
+
+prcp_2016_2017 = full_join(prcp_2016, prcp_2017) %&gt;% 
+  mutate(month = month.name[month])</code></pre>
+<pre><code>## Joining, by = c(&quot;month&quot;, &quot;total&quot;, &quot;year&quot;)</code></pre>
+</div>
+<div id="problem-3" class="section level2">
+<h2>Problem 3</h2>
+<pre class="r"><code>library(p8105.datasets)
+
+brfss_data = brfss_smart2010 %&gt;% 
+  janitor::clean_names() %&gt;%
+  filter(topic == &quot;Overall Health&quot;) %&gt;% 
+  select(-class, -topic, -question, -sample_size, -(confidence_limit_low:geo_location)) %&gt;% 
+  spread(key = response, value = data_value) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(prop_exc_vgood = excellent + very_good)</code></pre>
+<p>`r n_distinct(brfss_data$locationabbr)</p>
+</div>
 
 
 

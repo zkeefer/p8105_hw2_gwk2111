@@ -47,4 +47,46 @@ nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name) %
         filter(route_name == "A", ada == "TRUE")))
 ```
 
+##Problem 2
 
+Mr. Trash Wheel Sheet
+```{r}
+library(readxl)
+
+mr_trash_wheel_data = 
+  readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N258") %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(dumpster)) %>% 
+  mutate(sports_balls = as.integer(sports_balls)) 
+```
+
+2016 and 2017 Precipitation Data
+```{r}
+prcp_2016 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2016 Precipitation", range = "A2:B14") %>% 
+  janitor::clean_names() %>%
+  mutate(year = 2016)
+
+prcp_2017 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2017 Precipitation", range = "A2:B14") %>% 
+  janitor::clean_names() %>%
+  filter(!is.na(total)) %>% 
+  mutate(year = 2017)
+
+prcp_2016_2017 = full_join(prcp_2016, prcp_2017) %>% 
+  mutate(month = month.name[month])
+```
+
+
+##Problem 3
+```{r}
+library(p8105.datasets)
+
+brfss_data = brfss_smart2010 %>% 
+  janitor::clean_names() %>%
+  filter(topic == "Overall Health") %>% 
+  select(-class, -topic, -question, -sample_size, -(confidence_limit_low:geo_location)) %>% 
+  spread(key = response, value = data_value) %>% 
+  janitor::clean_names() %>% 
+  mutate(prop_exc_vgood = excellent + very_good)
+```
+
+`r n_distinct(brfss_data$locationabbr)
