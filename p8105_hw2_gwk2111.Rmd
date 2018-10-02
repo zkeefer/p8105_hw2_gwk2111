@@ -7,24 +7,44 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
 ```
 
-## R Markdown
+##Problem 1
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Read in data from the NYC transit subway entrance and exit data csv file, along with snaked variable names and entry converted from character to logical:
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+nyc_transit_data = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
+  janitor::clean_names() %>% 
+  select(line, station_name, station_latitude, station_longitude, route1:route11, entrance_type, entry, vending, ada) %>% 
+  mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
 
-```{r cars}
-summary(cars)
+nyc_transit_data
 ```
 
-## Including Plots
+Write something here
 
-You can also embed plots, for example:
+```{r}
+nrow(distinct(nyc_transit_data, line, station_name, ada))
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+nrow(distinct(nyc_transit_data, line, station_name, ada) %>% 
+        subset(ada == TRUE))
+
+nrow(filter(nyc_transit_data, entry == TRUE, vending == "NO")) / nrow(filter(nyc_transit_data, vending == "NO"))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+nyc_transit_data_route_reformat = gather(nyc_transit_data, key = route_number, value = route_name, route1:route11)
+
+
+nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name) %>% 
+       subset(route_name == "A"))
+
+
+(nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name, ada) %>% 
+        filter(route_name == "A", ada == "TRUE")))
+```
+
+
