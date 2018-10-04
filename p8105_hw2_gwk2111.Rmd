@@ -55,11 +55,11 @@ mr_trash_wheel_data =
 
 2016 and 2017 Precipitation Data
 ```{r}
-prcp_2016 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2016 Precipitation", range = "A2:B14") %>% 
+prcp_2016 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2016 Precipitation", range = "A2:B14") %>% 
   janitor::clean_names() %>%
   mutate(year = 2016)
 
-prcp_2017 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "2017 Precipitation", range = "A2:B14") %>% 
+prcp_2017 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2017 Precipitation", range = "A2:B14") %>% 
   janitor::clean_names() %>%
   filter(!is.na(total)) %>% 
   mutate(year = 2017)
@@ -68,6 +68,10 @@ prcp_2016_2017 = full_join(prcp_2016, prcp_2017) %>%
   mutate(month = month.name[month])
 ```
 
+`r nrow(mr_trash_wheel_data)`
+`r nrow(prcp_2016_2017)`
+`r sum(prcp_2017$total)`
+`r median(pull(filter(mr_trash_wheel_data, year == 2016), sports_balls), sports_balls, na.rm = TRUE)`
 
 ##Problem 3
 ```{r}
@@ -85,3 +89,18 @@ brfss_data = brfss_smart2010 %>%
 `r n_distinct(brfss_data$locationabbr, brfss_data$locationdesc)`
 `r n_distinct(brfss_data$locationabbr)`
 `r table(brfss_data$locationabbr)`
+```{r}
+filter(brfss_data, year == 2002) %>% 
+  pull(excellent) %>% 
+  median(excellent, na.rm = TRUE)
+
+filter(brfss_data, year == 2002) %>% 
+  ggplot(aes(x = excellent)) +
+  geom_histogram()
+
+
+filter(brfss_data, locationdesc == "NY - Queens County" | locationdesc == "NY - New York County") %>% 
+  ggplot(aes(x = year, y = excellent, color = locationdesc)) +
+  geom_point()
+```
+
