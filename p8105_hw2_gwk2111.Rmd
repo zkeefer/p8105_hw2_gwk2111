@@ -24,28 +24,21 @@ nyc_transit_data = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_
 nyc_transit_data
 ```
 
-Write something here
+This dataset that I created has 15 character variables, two double variables, and two logical variables.  The double variables refer to station latitude and longitude, while the character and logical variables are used to characterize each observation.  Most notably, there are 11 different character variables for route.  To clean this data I read in the file, used janitor to make more usable variable names, selected the 19 variables as instructed and then changed the entry variable from character to logical.  This dataset has 1,868 rows and 19 columns.  As stated before, there are 11 variables to describe route with many observations left empty. As a result, before gathering, this data set is not tidy.
+
+
+There are `r nrow(distinct(nyc_transit_data, line, station_name, ada))` distinct stations in the data set.  `r nrow(distinct(subset(nyc_transit_data, ada == TRUE), line, station_name, ada))` of these stations are ADA compliant.  The proportion of entrance/exits that don't have vending that do allow entry is `r nrow(filter(nyc_transit_data, entry == TRUE, vending == "NO")) / nrow(filter(nyc_transit_data, vending == "NO"))`.
+
 
 ```{r}
-nrow(distinct(nyc_transit_data, line, station_name, ada))
 
-nrow(distinct(nyc_transit_data, line, station_name, ada) %>% 
-        subset(ada == TRUE))
-
-nrow(filter(nyc_transit_data, entry == TRUE, vending == "NO")) / nrow(filter(nyc_transit_data, vending == "NO"))
-```
-
-```{r}
+##This code gathers the data and makes route number qnd route name two distinct variable, as opposed to having 11 route variables.
 nyc_transit_data_route_reformat = gather(nyc_transit_data, key = route_number, value = route_name, route1:route11)
 
-
-nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name) %>% 
-       subset(route_name == "A"))
-
-
-(nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name, ada) %>% 
-        filter(route_name == "A", ada == "TRUE")))
 ```
+
+There are `r nrow(distinct(subset(nyc_transit_data_route_reformat, route_name == "A"), line, station_name, route_name))` stations that serve the A train.  Of the stations that serve the A train, `r (nrow(distinct(filter(nyc_transit_data_route_reformat, route_name == "A", ada == "TRUE"), line, station_name, route_name, ada)))` are ADA compliant.  
+
 
 ##Problem 2
 

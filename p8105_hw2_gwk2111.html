@@ -168,23 +168,11 @@ $(document).ready(function () {
 ## #   route4 &lt;chr&gt;, route5 &lt;chr&gt;, route6 &lt;chr&gt;, route7 &lt;chr&gt;, route8 &lt;int&gt;,
 ## #   route9 &lt;int&gt;, route10 &lt;int&gt;, route11 &lt;int&gt;, entrance_type &lt;chr&gt;,
 ## #   entry &lt;lgl&gt;, vending &lt;chr&gt;, ada &lt;lgl&gt;</code></pre>
-<p>Write something here</p>
-<pre class="r"><code>nrow(distinct(nyc_transit_data, line, station_name, ada))</code></pre>
-<pre><code>## [1] 465</code></pre>
-<pre class="r"><code>nrow(distinct(nyc_transit_data, line, station_name, ada) %&gt;% 
-        subset(ada == TRUE))</code></pre>
-<pre><code>## [1] 84</code></pre>
-<pre class="r"><code>nrow(filter(nyc_transit_data, entry == TRUE, vending == &quot;NO&quot;)) / nrow(filter(nyc_transit_data, vending == &quot;NO&quot;))</code></pre>
-<pre><code>## [1] 0.3770492</code></pre>
-<pre class="r"><code>nyc_transit_data_route_reformat = gather(nyc_transit_data, key = route_number, value = route_name, route1:route11)
-
-
-nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name) %&gt;% 
-       subset(route_name == &quot;A&quot;))</code></pre>
-<pre><code>## [1] 60</code></pre>
-<pre class="r"><code>(nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name, ada) %&gt;% 
-        filter(route_name == &quot;A&quot;, ada == &quot;TRUE&quot;)))</code></pre>
-<pre><code>## [1] 17</code></pre>
+<p>This dataset that I created has 15 character variables, two double variables, and two logical variables. The double variables refer to station latitude and longitude, while the character and logical variables are used to characterize each observation. Most notably, there are 11 different character variables for route. To clean this data I read in the file, used janitor to make more usable variable names, selected the 19 variables as instructed and then changed the entry variable from character to logical. This dataset has 1,868 rows and 19 columns. As stated before, there are 11 variables to describe route with many observations left empty. As a result, before gathering, this data set is not tidy.</p>
+<p>There are 465 distinct stations in the data set. 84 of these stations are ADA compliant. The proportion of entrance/exits that don’t have vending that do allow entry is 0.3770492.</p>
+<pre class="r"><code>##This code gathers the data and makes route number qnd route name two distinct variable, as opposed to having 11 route variables.
+nyc_transit_data_route_reformat = gather(nyc_transit_data, key = route_number, value = route_name, route1:route11)</code></pre>
+<p>There are 60 stations that serve the A train. Of the stations that serve the A train, 17 are ADA compliant.</p>
 </div>
 <div id="problem-2" class="section level2">
 <h2>Problem 2</h2>
