@@ -192,7 +192,7 @@ nrow(distinct(nyc_transit_data_route_reformat, line, station_name, route_name) %
 <pre class="r"><code>library(readxl)
 
 mr_trash_wheel_data = 
-  readxl::read_excel(&quot;./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx&quot;, sheet = &quot;Mr. Trash Wheel&quot;, range = &quot;A2:N258&quot;) %&gt;% 
+  readxl::read_excel(&quot;./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx&quot;, sheet = &quot;Mr. Trash Wheel&quot;, range = &quot;A2:N258&quot;) %&gt;% 
   janitor::clean_names() %&gt;% 
   filter(!is.na(dumpster)) %&gt;% 
   mutate(sports_balls = as.integer(sports_balls)) </code></pre>
@@ -221,7 +221,7 @@ brfss_data = brfss_smart2010 %&gt;%
   spread(key = response, value = data_value) %&gt;% 
   janitor::clean_names() %&gt;% 
   mutate(prop_exc_vgood = excellent + very_good)</code></pre>
-<p>`r n_distinct(brfss_data$locationabbr)</p>
+<p>404 51 11, 18, 21, 32, 52, 59, 47, 9, 27, 122, 27, 31, 14, 32, 25, 21, 38, 9, 45, 79, 90, 31, 34, 33, 25, 23, 18, 115, 18, 53, 48, 146, 43, 18, 65, 59, 40, 33, 59, 38, 63, 18, 26, 71, 50, 4, 48, 97, 9, 9, 22</p>
 </div>
 
 

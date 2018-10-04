@@ -54,7 +54,7 @@ Mr. Trash Wheel Sheet
 library(readxl)
 
 mr_trash_wheel_data = 
-  readxl::read_excel("./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N258") %>% 
+  readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N258") %>% 
   janitor::clean_names() %>% 
   filter(!is.na(dumpster)) %>% 
   mutate(sports_balls = as.integer(sports_balls)) 
@@ -89,4 +89,6 @@ brfss_data = brfss_smart2010 %>%
   mutate(prop_exc_vgood = excellent + very_good)
 ```
 
-`r n_distinct(brfss_data$locationabbr)
+`r n_distinct(brfss_data$locationabbr, brfss_data$locationdesc)`
+`r n_distinct(brfss_data$locationabbr)`
+`r table(brfss_data$locationabbr)`
