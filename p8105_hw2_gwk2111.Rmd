@@ -13,18 +13,16 @@ library(tidyverse)
 
 ##Problem 1
 
-Read in data from the NYC transit subway entrance and exit data csv file, along with snaked variable names and entry converted from character to logical:
+Data from the NYC transit subway entrance and exit data csv file:
 
 ```{r}
 nyc_transit_data = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
   janitor::clean_names() %>% 
   select(line, station_name, station_latitude, station_longitude, route1:route11, entrance_type, entry, vending, ada) %>% 
   mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
-
-nyc_transit_data
 ```
 
-This dataset is NYC Transit data that contains information on the entrances and exits of MTA Subway stations.  It has 15 character variables, two double variables, and two logical variables.  The double variables refer to station latitude and longitude, while the character and logical variables are used to characterize each observation.  There are 11 different character variables for route.  Notable among the variables are `line` and `station_name` which define a specifc station, as well as ada, which says whether a station is ADA compliant.  To clean this data I read in the file, used janitor to make more usable variable names, selected the 19 variables as instructed and then changed the entry variable from character to logical.  This dataset has 1,868 rows and 19 columns.  As stated before, there are 11 variables to describe route with many observations left empty. As a result, before gathering, this data set is not tidy.
+This dataset is NYC Transit data that contains information on the entrances and exits of MTA Subway stations.  It has 15 character variables, two double variables, and two logical variables.  The double variables refer to station latitude and longitude, while the character and logical variables are used to characterize each observation.  There are 11 different character variables for route.  Notable among the variables are `line` and `station_name` which define a specifc station, as well as `ada`, which says whether a station is ADA compliant.  To clean this data I read in the file, used janitor to make more usable variable names, selected the 19 variables as instructed and then changed the entry variable from character to logical.  This dataset has 1,868 rows and 19 columns.  As stated before, there are 11 variables to describe route with many observations left empty. As a result, before gathering, this data set is not tidy.
 
 
 There are `r nrow(distinct(nyc_transit_data, line, station_name, ada))` distinct stations in the data set.  `r nrow(distinct(subset(nyc_transit_data, ada == TRUE), line, station_name, ada))` of these stations are ADA compliant.  The proportion of entrance/exits that don't have vending that do allow entry is `r nrow(filter(nyc_transit_data, entry == TRUE, vending == "NO")) / nrow(filter(nyc_transit_data, vending == "NO"))`.
@@ -32,7 +30,7 @@ There are `r nrow(distinct(nyc_transit_data, line, station_name, ada))` distinct
 
 ```{r}
 
-##This code gathers the data and makes route number qnd route name two distinct variable, as opposed to having 11 route variables.
+##This code gathers the data and makes route number and route name two distinct variables, as opposed to having 11 route variables.
 nyc_transit_data_route_reformat = gather(nyc_transit_data, key = route_number, value = route_name, route1:route11)
 
 ```
@@ -42,7 +40,7 @@ There are `r nrow(distinct(subset(nyc_transit_data_route_reformat, route_name ==
 
 ##Problem 2
 
-Mr. Trash Wheel Sheet
+Mr. Trash Wheel Sheet:
 ```{r}
 ##Need to use this library in order to open the excel sheet
 library(readxl)
@@ -54,7 +52,7 @@ mr_trash_wheel_data =
   mutate(sports_balls = as.integer(sports_balls)) 
 ```
 
-2016 and 2017 Precipitation Data
+2016 and 2017 Precipitation Data:
 ```{r}
 ##First reading in the 2 sheet, will combine them below
 prcp_2016 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2016 Precipitation", range = "A2:B14") %>% 
@@ -76,9 +74,10 @@ Based on available data, the total percipitation in 2017 was `r sum(prcp_2017$to
 
 ##Problem 3
 
+Behavioral Risk Factor Survey Data:
 ```{r}
+##We can upload the data from this library as opposed to the data subfolder.
 library(p8105.datasets)
-library(plyr)
 
 brfss_data = brfss_smart2010 %>% 
   janitor::clean_names() %>%
@@ -86,27 +85,32 @@ brfss_data = brfss_smart2010 %>%
   select(-class, -topic, -question, -sample_size, -(confidence_limit_low:geo_location)) %>% 
   spread(key = response, value = data_value) %>% 
   janitor::clean_names() %>% 
-  mutate(prop_exc_vgood = excellent + very_good) %>% 
-  rename(c(locationabbr = "state",
-         locationdesc = "county"))
+  mutate(prop_exc_vgood = (excellent + very_good)/100)
 ```
 
-`r n_distinct(brfss_data$state, brfss_data$county)`
-`r n_distinct(brfss_data$state)`
-`r table(brfss_data$state)`
+There are `r n_distinct(brfss_data$locationabbr, brfss_data$locationdesc)` unique locations included in the data set.  In addition, according to the dataset there are `r n_distinct(brfss_data$locationabbr)` states, which is odd. I will check why there is an extra state below:
+
 ```{r}
+##Table function by state gives a count of observations for every state
+table(brfss_data$locationabbr)
+```
 
-filter(brfss_data, year == 2002) %>% 
-  pull(excellent) %>% 
-  median(excellent, na.rm = TRUE)
+After running the table function, we see that the data set includes the 50 states and Washington D.C., which is the extra "state."  According to the table, the state observed the most is New Jersey, which has `r max(table(brfss_data$locationabbr))` observations.
 
+The median of the 'Excellent' response value in 2002 is `r median(pull(filter(brfss_data, year == 2002), excellent), excellent, na.rm = TRUE)`.
+
+
+
+Histogram and scatterplot:
+```{r}
+##Histogram of "Excellent" response values from 2002
 filter(brfss_data, year == 2002) %>% 
   ggplot(aes(x = excellent)) +
   geom_histogram()
 
-
-filter(brfss_data, county == "NY - Queens County" | county == "NY - New York County") %>% 
-  ggplot(aes(x = year, y = excellent, color = county)) +
+##Scatterplot showing the proportion of "Excellent" response values in New York County and Queens County from 2002 to 2010.
+filter(brfss_data, locationdesc == "NY - Queens County" | locationdesc == "NY - New York County") %>% 
+  ggplot(aes(x = year, y = excellent, color = locationdesc)) +
   geom_point()
 ```
 
