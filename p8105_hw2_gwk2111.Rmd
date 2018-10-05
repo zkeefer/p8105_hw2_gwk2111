@@ -2,7 +2,7 @@
 title: "p8105_hw2_gwk2111"
 author: "Zach Keefer"
 date: "9/30/2018"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -24,7 +24,7 @@ nyc_transit_data = read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_
 nyc_transit_data
 ```
 
-This dataset that I created has 15 character variables, two double variables, and two logical variables.  The double variables refer to station latitude and longitude, while the character and logical variables are used to characterize each observation.  Most notably, there are 11 different character variables for route.  To clean this data I read in the file, used janitor to make more usable variable names, selected the 19 variables as instructed and then changed the entry variable from character to logical.  This dataset has 1,868 rows and 19 columns.  As stated before, there are 11 variables to describe route with many observations left empty. As a result, before gathering, this data set is not tidy.
+This dataset is NYC Transit data that contains information on the entrances and exits of MTA Subway stations.  It has 15 character variables, two double variables, and two logical variables.  The double variables refer to station latitude and longitude, while the character and logical variables are used to characterize each observation.  There are 11 different character variables for route.  Notable among the variables are `line` and `station_name` which define a specifc station, as well as ada, which says whether a station is ADA compliant.  To clean this data I read in the file, used janitor to make more usable variable names, selected the 19 variables as instructed and then changed the entry variable from character to logical.  This dataset has 1,868 rows and 19 columns.  As stated before, there are 11 variables to describe route with many observations left empty. As a result, before gathering, this data set is not tidy.
 
 
 There are `r nrow(distinct(nyc_transit_data, line, station_name, ada))` distinct stations in the data set.  `r nrow(distinct(subset(nyc_transit_data, ada == TRUE), line, station_name, ada))` of these stations are ADA compliant.  The proportion of entrance/exits that don't have vending that do allow entry is `r nrow(filter(nyc_transit_data, entry == TRUE, vending == "NO")) / nrow(filter(nyc_transit_data, vending == "NO"))`.
@@ -44,6 +44,7 @@ There are `r nrow(distinct(subset(nyc_transit_data_route_reformat, route_name ==
 
 Mr. Trash Wheel Sheet
 ```{r}
+##Need to use this library in order to open the excel sheet
 library(readxl)
 
 mr_trash_wheel_data = 
@@ -55,6 +56,7 @@ mr_trash_wheel_data =
 
 2016 and 2017 Precipitation Data
 ```{r}
+##First reading in the 2 sheet, will combine them below
 prcp_2016 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2016 Precipitation", range = "A2:B14") %>% 
   janitor::clean_names() %>%
   mutate(year = 2016)
@@ -66,16 +68,17 @@ prcp_2017 = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xl
 
 prcp_2016_2017 = full_join(prcp_2016, prcp_2017) %>% 
   mutate(month = month.name[month])
+
 ```
 
-`r nrow(mr_trash_wheel_data)`
-`r nrow(prcp_2016_2017)`
-`r sum(prcp_2017$total)`
-`r median(pull(filter(mr_trash_wheel_data, year == 2016), sports_balls), sports_balls, na.rm = TRUE)`
+The Mr. Trash Wheel Data set contains data regarding the amount and type of trash collected by the water-wheel vessel in Baltimore Harbor.  The Precipitation in 2016 and 2017 data set contains data about the total percipitation by month in Baltimore Harbor.  The data in the data sets come from the Healthy Harbor Initiative.  Variables of note in the Mr. Trash Wheel data set are `dumpster`, which is a unique identifier for each dumpster; `weight_tons`, which describes the amount of trash each dumpster collects; and `homes_powered`, which describes the amount of homes a dumpster's trash powers.  Variables of note in the precipitaion data set are `total`, which is the total precipitation in a given month; as well as `year` and `month`.  The Mr. Trash Wheel data set has `r nrow(mr_trash_wheel_data)` observations and the Preceipitation in 2016 and 2017 data set has `r nrow(prcp_2016_2017)` observations.  
+Based on available data, the total percipitation in 2017 was `r sum(prcp_2017$total)`.  The median number of sports balls in a dumpster in 2016 was `r median(pull(filter(mr_trash_wheel_data, year == 2016), sports_balls), sports_balls, na.rm = TRUE)`.
 
 ##Problem 3
+
 ```{r}
 library(p8105.datasets)
+library(plyr)
 
 brfss_data = brfss_smart2010 %>% 
   janitor::clean_names() %>%
@@ -83,13 +86,16 @@ brfss_data = brfss_smart2010 %>%
   select(-class, -topic, -question, -sample_size, -(confidence_limit_low:geo_location)) %>% 
   spread(key = response, value = data_value) %>% 
   janitor::clean_names() %>% 
-  mutate(prop_exc_vgood = excellent + very_good)
+  mutate(prop_exc_vgood = excellent + very_good) %>% 
+  rename(c(locationabbr = "state",
+         locationdesc = "county"))
 ```
 
-`r n_distinct(brfss_data$locationabbr, brfss_data$locationdesc)`
-`r n_distinct(brfss_data$locationabbr)`
-`r table(brfss_data$locationabbr)`
+`r n_distinct(brfss_data$state, brfss_data$county)`
+`r n_distinct(brfss_data$state)`
+`r table(brfss_data$state)`
 ```{r}
+
 filter(brfss_data, year == 2002) %>% 
   pull(excellent) %>% 
   median(excellent, na.rm = TRUE)
@@ -99,8 +105,8 @@ filter(brfss_data, year == 2002) %>%
   geom_histogram()
 
 
-filter(brfss_data, locationdesc == "NY - Queens County" | locationdesc == "NY - New York County") %>% 
-  ggplot(aes(x = year, y = excellent, color = locationdesc)) +
+filter(brfss_data, county == "NY - Queens County" | county == "NY - New York County") %>% 
+  ggplot(aes(x = year, y = excellent, color = county)) +
   geom_point()
 ```
 
